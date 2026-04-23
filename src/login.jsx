@@ -45,11 +45,15 @@ const Login = ({ onLogin, onShowRegister }) => {
     const registeredUser = users.find(u => u.email === email);
     if (registeredUser) {
       if (registeredUser.password === password) {
-        try { localStorage.setItem('currentUser', JSON.stringify({ firstName: registeredUser.firstName || '', lastName: registeredUser.lastName || '', email: registeredUser.email })); } catch (e) {}
-        if (typeof onLogin === "function") onLogin();
+        const user = {
+          firstName: registeredUser.firstName || '',
+          lastName: registeredUser.lastName || '',
+          email: registeredUser.email,
+        }
+        if (typeof onLogin === 'function') onLogin(user)
         return;
       } else {
-        setPasswordError("Wrong password.");
+        setPasswordError('Wrong password.')
         return;
       }
     }
@@ -59,8 +63,12 @@ const Login = ({ onLogin, onShowRegister }) => {
     const passwordMatches = password === fixedPassword;
 
     if (emailMatches && passwordMatches) {
-      try { localStorage.setItem('currentUser', JSON.stringify({ firstName: fixedFirstName, lastName: fixedLastName, email: fixedEmail })); } catch (e) {}
-      if (typeof onLogin === "function") onLogin();
+      const user = {
+        firstName: fixedFirstName,
+        lastName: fixedLastName,
+        email: fixedEmail,
+      }
+      if (typeof onLogin === 'function') onLogin(user)
       return;
     }
 
