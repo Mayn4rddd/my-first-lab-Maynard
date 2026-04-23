@@ -1,0 +1,127 @@
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,0,0,0.28);
+  z-index: 2000;
+}
+
+/* card presentation now handled by .card-container */
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(229, 9, 20, 0.2);
+  background: var(--bg-secondary);
+  color: #ffffff;
+}
+
+.profile-header h3 { margin: 0; font-size: 18px; letter-spacing: -0.2px; color: #ffffff; }
+
+.profile-body {
+  padding: 24px 20px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  color: #ffffff;
+  background: var(--bg-primary);
+}
+
+/* Top-centered circular avatar */
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e50914, #ff1a2b);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 26px;
+  box-shadow: 0 8px 22px rgba(229, 9, 20, 0.3);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 20px 24px 20px;
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 0;
+  background: rgba(229, 9, 20, 0.05);
+  border: none;
+  border-bottom: 1px solid rgba(229, 9, 20, 0.1);
+  transition: background 150ms ease;
+}
+
+.field:hover {
+  background: rgba(229, 9, 20, 0.15);
+}
+
+.field:last-of-type {
+  border-bottom: none;
+}
+
+.label { font-size: 13px; color: #b3b3b3; }
+.value { font-size: 16px; font-weight: 600; color: #ffffff; }
+
+.upload-row {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: "0 14px";
+  border-bottom: 1px solid rgba(229, 9, 20, 0.1);
+}
+
+.upload-btn {
+  padding: 8px 12px;
+  background: linear-gradient(90deg, #e50914, #ff1a2b);
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.3);
+}
+
+.muted { color: #b3b3b3; font-size: 13px; }
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .avatar { width: 80px; height: 80px; }
+}

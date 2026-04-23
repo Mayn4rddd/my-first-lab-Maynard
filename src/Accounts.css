@@ -1,0 +1,101 @@
+.accounts-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 2100;
+}
+
+/* card appearance provided by .card-container */
+
+.accounts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(229, 9, 20, 0.2);
+  background: var(--bg-secondary);
+  color: #ffffff;
+}
+
+.accounts-body {
+  padding: 16px 20px 24px 20px;
+  background: var(--bg-primary);
+}
+
+.table-wrap { 
+  overflow-x: auto; 
+}
+
+.accounts-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+.accounts-table th, .accounts-table td { 
+  text-align: left; 
+  padding: 12px 10px; 
+  border-bottom: 1px solid rgba(65, 105, 225, 0.1); 
+}
+
+.accounts-table th { 
+  font-size: 13px; 
+  color: var(--text-secondary); 
+  font-weight: 600; 
+  background: rgba(229, 9, 20, 0.1);
+}
+
+.accounts-table tbody tr:nth-child(odd) { 
+  background: rgba(229, 9, 20, 0.05); 
+}
+
+.accounts-table tbody tr td { 
+  font-size: 14px; 
+  color: var(--text-secondary); 
+}
+
+.accounts-table tbody tr {
+  transition: background 150ms ease;
+}
+
+.accounts-table tbody tr:hover {
+  background: rgba(229, 9, 20, 0.15);
+}
+
+.table-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--theme-blue) 0%, var(--theme-red) 100%);
+  flex-shrink: 0;
+}
+
+.table-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.table-initials {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.muted { 
+  color: var(--text-muted); 
+}
+
+.close-btn { 
+  background: transparent; 
+  border: none; 
+  font-size: 20px; 
+  cursor: pointer;
+  color: var(--text-secondary);
+}
