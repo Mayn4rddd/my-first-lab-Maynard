@@ -29,13 +29,194 @@ function saveContacts(contacts) {
   }
 }
 
+function ContactCard({ contact, onEdit, onDelete }) {
+  return (
+    <div className="contact-card" key={contact.id}>
+      <div className="card-media">
+        {contact.image ? (
+          <img src={contact.image} alt={contact.name} className="profile-photo" />
+        ) : (
+          <div className="profile-fallback">
+            {contact.name
+              .split(' ')
+              .map((part) => part[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase()}
+          </div>
+        )}
+      </div>
+      <div className="contact-card-body">
+        <div className="contact-name">{contact.name}</div>
+        <div className="contact-meta">{contact.email}</div>
+        <div className="contact-meta">{contact.phone}</div>
+        <div className="contact-address">{contact.address || 'No street address'}</div>
+      </div>
+
+      <div className="card-overlay">
+        <button className="overlay-button" onClick={() => onEdit(contact)}>
+          Edit
+        </button>
+        <button className="overlay-button overlay-delete" onClick={() => onDelete(contact)}>
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ContactForm({ modalMode, formValues, formErrors, isSubmitDisabled, onFormChange, onImageUpload, onSave, onClose }) {
+  if (!modalMode) return null;
+
+  return (
+    <div className="modal-backdrop" role="dialog" aria-modal="true">
+      <div className="modal-window">
+        <div className="modal-header">
+          <div>
+            <p className="modal-label">{modalMode === 'edit' ? 'Edit Contact' : 'Add Contact'}</p>
+            <h2>{modalMode === 'edit' ? 'Update contact details' : 'Create a new contact'}</h2>
+          </div>
+          <button className="modal-close" onClick={onClose} aria-label="Close modal">
+            ×
+          </button>
+        </div>
+        <form className="contact-form" onSubmit={onSave}>
+          <label className="form-field">
+            <span>Name</span>
+            <input
+              className={formErrors.name ? 'input-error' : ''}
+              value={formValues.name}
+              onChange={(e) => onFormChange('name', e.target.value)}
+              required
+              placeholder="Full name"
+              aria-invalid={!!formErrors.name}
+            />
+            {formErrors.name && <p className="input-error-message">{formErrors.name}</p>}
+          </label>
+          <label className="form-field">
+            <span>Email</span>
+            <input
+              type="email"
+              className={formErrors.email ? 'input-error' : ''}
+              value={formValues.email}
+              onChange={(e) => onFormChange('email', e.target.value)}
+              required
+              placeholder="email@example.com"
+              aria-invalid={!!formErrors.email}
+            />
+            {formErrors.email && <p className="input-error-message">{formErrors.email}</p>}
+          </label>
+          <label className="form-field">
+            <span>Phone</span>
+            <input
+              type="tel"
+              className={formErrors.phone ? 'input-error' : ''}
+              value={formValues.phone}
+              onChange={(e) => onFormChange('phone', e.target.value)}
+              required
+              placeholder="+639123456789"
+              aria-invalid={!!formErrors.phone}
+            />
+            {formErrors.phone && <p className="input-error-message">{formErrors.phone}</p>}
+          </label>
+          <label className="form-field">
+            <span>Address</span>
+            <input
+              value={formValues.address}
+              onChange={(e) => onFormChange('address', e.target.value)}
+              placeholder="Street, city, state"
+            />
+          </label>
+          <label className="form-field file-field">
+            <span>Profile image</span>
+            <input type="file" accept="image/*" onChange={onImageUpload} />
+            <div className="file-helper">PNG, JPG or GIF. Optional.</div>
+          </label>
+          <div className="modal-actions">
+            <button type="button" className="btn btn-outline" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitDisabled}>
+              {modalMode === 'edit' ? 'Save Changes' : 'Add Contact'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// DeleteConfirmModal Component - accepts props for contact and callbacks
+function DeleteConfirmModal({ selectedContact, onConfirm, onCancel }) {
+  if (!selectedContact) return null;
+
+  return (
+    <div className="modal-backdrop" role="alertdialog" aria-modal="true">
+      <div className="modal-window modal-small">
+        <div className="modal-header">
+          <div>
+            <p className="modal-label">Confirm delete</p>
+            <h2>Remove {selectedContact.name}?</h2>
+          </div>
+          <button className="modal-close" onClick={onCancel} aria-label="Close delete dialog">
+            ×
+          </button>
+        </div>
+        <div className="confirm-body">
+          <p>This action cannot be undone. Are you sure you want to delete this contact?</p>
+          <div className="modal-actions">
+            <button className="btn btn-outline" onClick={onCancel}>
+              Cancel
+            </button>
+            <button className="btn btn-delete" onClick={onConfirm}>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ContactManager() {
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [modalMode, setModalMode] = useState(null);
   const [selectedContact, setSelectedContact] = useState(null);
   const [formValues, setFormValues] = useState(emptyForm);
+  const [formErrors, setFormErrors] = useState({ name: '', email: '', phone: '' });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const validateValues = (values) => {
+    const normalizedName = values.name.trim().toLowerCase();
+    const normalizedEmail = values.email.trim().toLowerCase();
+    const normalizedPhone = values.phone.trim();
+    const existingEntries = contacts.filter((contact) =>
+      selectedContact ? contact.id !== selectedContact.id : true,
+    );
+
+    return {
+      name:
+        normalizedName &&
+        existingEntries.some(
+          (contact) => contact.name.trim().toLowerCase() === normalizedName,
+        )
+          ? 'Name already exists'
+          : '',
+      email:
+        normalizedEmail &&
+        existingEntries.some(
+          (contact) => contact.email.trim().toLowerCase() === normalizedEmail,
+        )
+          ? 'Email already exists'
+          : '',
+      phone:
+        normalizedPhone &&
+        existingEntries.some((contact) => contact.phone.trim() === normalizedPhone)
+          ? 'Phone number already exists'
+          : '',
+    };
+  };
 
   useEffect(() => {
     const loadedContacts = getContacts();
@@ -61,6 +242,7 @@ function ContactManager() {
   const openAddModal = () => {
     setSelectedContact(null);
     setFormValues(emptyForm);
+    setFormErrors({ name: '', email: '', phone: '' });
     setModalMode('add');
   };
 
@@ -73,6 +255,7 @@ function ContactManager() {
       address: contact.address,
       image: contact.image || null,
     });
+    setFormErrors({ name: '', email: '', phone: '' });
     setModalMode('edit');
   };
 
@@ -84,11 +267,18 @@ function ContactManager() {
   const closeModal = () => {
     setModalMode(null);
     setFormValues(emptyForm);
+    setFormErrors({ name: '', email: '', phone: '' });
     setSelectedContact(null);
   };
 
   const handleFormChange = (field, value) => {
-    setFormValues((prev) => ({ ...prev, [field]: value }));
+    setFormValues((prev) => {
+      const next = { ...prev, [field]: value };
+      if (field === 'name' || field === 'email' || field === 'phone') {
+        setFormErrors(validateValues(next));
+      }
+      return next;
+    });
   };
 
   const handleImageUpload = (event) => {
@@ -111,7 +301,15 @@ function ContactManager() {
       image: formValues.image,
     };
 
+    const errors = validateValues(trimmed);
+    if (errors.email || errors.phone) {
+      setFormErrors(errors);
+      return;
+    }
+
     if (!trimmed.name || !trimmed.email || !trimmed.phone) return;
+
+    setFormErrors({ email: '', phone: '' });
 
     if (modalMode === 'edit' && selectedContact) {
       updateContacts(
@@ -133,6 +331,14 @@ function ContactManager() {
     setShowDeleteConfirm(false);
     setSelectedContact(null);
   };
+
+  const isSubmitDisabled =
+    !!formErrors.name ||
+    !!formErrors.email ||
+    !!formErrors.phone ||
+    !formValues.name.trim() ||
+    !formValues.email.trim() ||
+    !formValues.phone.trim();
 
   return (
     <div className="contact-page">
@@ -164,37 +370,12 @@ function ContactManager() {
       <div className="contact-grid">
         {filteredContacts.length ? (
           filteredContacts.map((contact) => (
-            <div className="contact-card" key={contact.id}>
-              <div className="card-media">
-                {contact.image ? (
-                  <img src={contact.image} alt={contact.name} className="profile-photo" />
-                ) : (
-                  <div className="profile-fallback">
-                    {contact.name
-                      .split(' ')
-                      .map((part) => part[0])
-                      .join('')
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div className="contact-card-body">
-                <div className="contact-name">{contact.name}</div>
-                <div className="contact-meta">{contact.email}</div>
-                <div className="contact-meta">{contact.phone}</div>
-                <div className="contact-address">{contact.address || 'No street address'}</div>
-              </div>
-
-              <div className="card-overlay">
-                <button className="overlay-button" onClick={() => openEditModal(contact)}>
-                  Edit
-                </button>
-                <button className="overlay-button overlay-delete" onClick={() => openDeleteConfirm(contact)}>
-                  Delete
-                </button>
-              </div>
-            </div>
+            <ContactCard 
+              key={contact.id} 
+              contact={contact} 
+              onEdit={openEditModal} 
+              onDelete={openDeleteConfirm} 
+            />
           ))
         ) : (
           <div className="empty-state">
@@ -208,100 +389,22 @@ function ContactManager() {
         )}
       </div>
 
-      {modalMode && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true">
-          <div className="modal-window">
-            <div className="modal-header">
-              <div>
-                <p className="modal-label">{modalMode === 'edit' ? 'Edit Contact' : 'Add Contact'}</p>
-                <h2>{modalMode === 'edit' ? 'Update contact details' : 'Create a new contact'}</h2>
-              </div>
-              <button className="modal-close" onClick={closeModal} aria-label="Close modal">
-                ×
-              </button>
-            </div>
-            <form className="contact-form" onSubmit={handleSaveContact}>
-              <label className="form-field">
-                <span>Name</span>
-                <input
-                  value={formValues.name}
-                  onChange={(e) => handleFormChange('name', e.target.value)}
-                  required
-                  placeholder="Full name"
-                />
-              </label>
-              <label className="form-field">
-                <span>Email</span>
-                <input
-                  type="email"
-                  value={formValues.email}
-                  onChange={(e) => handleFormChange('email', e.target.value)}
-                  required
-                  placeholder="email@example.com"
-                />
-              </label>
-              <label className="form-field">
-                <span>Phone</span>
-                <input
-                  type="tel"
-                  value={formValues.phone}
-                  onChange={(e) => handleFormChange('phone', e.target.value)}
-                  required
-                  placeholder="+639123456789"
-                />
-              </label>
-              <label className="form-field">
-                <span>Address</span>
-                <input
-                  value={formValues.address}
-                  onChange={(e) => handleFormChange('address', e.target.value)}
-                  placeholder="Street, city, state"
-                />
-              </label>
-              <label className="form-field file-field">
-                <span>Profile image</span>
-                <input type="file" accept="image/*" onChange={handleImageUpload} />
-                <div className="file-helper">PNG, JPG or GIF. Optional.</div>
-              </label>
-              <div className="modal-actions">
-                <button type="button" className="btn btn-outline" onClick={closeModal}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {modalMode === 'edit' ? 'Save Changes' : 'Add Contact'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ContactForm
+        modalMode={modalMode}
+        formValues={formValues}
+        formErrors={formErrors}
+        isSubmitDisabled={isSubmitDisabled}
+        onFormChange={handleFormChange}
+        onImageUpload={handleImageUpload}
+        onSave={handleSaveContact}
+        onClose={closeModal}
+      />
 
-      {showDeleteConfirm && selectedContact && (
-        <div className="modal-backdrop" role="alertdialog" aria-modal="true">
-          <div className="modal-window modal-small">
-            <div className="modal-header">
-              <div>
-                <p className="modal-label">Confirm delete</p>
-                <h2>Remove {selectedContact.name}?</h2>
-              </div>
-              <button className="modal-close" onClick={() => setShowDeleteConfirm(false)} aria-label="Close delete dialog">
-                ×
-              </button>
-            </div>
-            <div className="confirm-body">
-              <p>This action cannot be undone. Are you sure you want to delete this contact?</p>
-              <div className="modal-actions">
-                <button className="btn btn-outline" onClick={() => setShowDeleteConfirm(false)}>
-                  Cancel
-                </button>
-                <button className="btn btn-delete" onClick={handleConfirmDelete}>
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmModal
+        selectedContact={showDeleteConfirm ? selectedContact : null}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }
